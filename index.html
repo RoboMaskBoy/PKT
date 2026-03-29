@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>PKT</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: sans-serif; padding: 16px; }
+    textarea { width: 100%; height: 60px; margin-bottom: 12px; }
+    button { width: 100%; padding: 12px; font-size: 16px; }
+    .count { font-weight: bold; margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+
+<div class="count">未回収ログ：<span id="count">0</span></div>
+
+<textarea placeholder="P：今日やったこと"></textarea>
+<textarea placeholder="K：気づいたこと"></textarea>
+<textarea placeholder="T：次にやること"></textarea>
+
+<button onclick="collect()">回収する</button>
+
+<script>
+  const today = new Date().toISOString().slice(0,10);
+  const last = localStorage.getItem("last") || today;
+  const diff = Math.max(0,
+    (new Date(today) - new Date(last)) / 86400000
+  );
+
+  let uncollected = Number(localStorage.getItem("uncollected") || 0) + diff;
+  document.getElementById("count").textContent = uncollected;
+
+  function collect() {
+    uncollected = Math.max(0, uncollected - 1);
+    localStorage.setItem("uncollected", uncollected);
+    localStorage.setItem("last", today);
+    document.getElementById("count").textContent = uncollected;
+    alert("回収完了");
+  }
+</script>
+
+</body>
+</html>

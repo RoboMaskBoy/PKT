@@ -1,0 +1,36 @@
+name: Save PKT
+
+on:
+  workflow_dispatch:
+    inputs:
+      code:
+        required: true
+      content:
+        required: true
+
+jobs:
+  save:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Exchange token
+        id: token
+        run: |
+          res=$(curl -s -X POST https://github.com/login/oauth/access_token \
+            -H "Accept: application/json" \
+            -d "client_id=${{ secrets.CLIENT_ID }}" \
+            -d "client_secret=${{ secrets.CLIENT_SECRET }}" \
+            -d "code=${{ github.event.inputs.code }}")
+          echo "token=$(echo $res | jq -r .access_token)" >> $GITHUB_OUTPUT
+
+      - name: Save log
+        run: |
+          DATE=$(date +%F)
+          mkdir -p logs
+          echo "${{ github.event.inputs.content }}" > logs/$DATE.md
+          git config user.name "pkt-bot"
+          git config user.email "pkt@bot"
+          git add logs/$DATE.md
+          git commit -m "PKT $DATE"
+          git push

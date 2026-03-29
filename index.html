@@ -25,23 +25,27 @@
 <button onclick="collect()">回収する</button>
 
 <script>
-  const today = new Date().toISOString().slice(0,10);
-  const last = localStorage.getItem("last") || today;
-  const diff = Math.max(0,
-    (new Date(today) - new Date(last)) / 86400000
-  );
+const clientId = "Ov23lie1HLE64McsLhrS";
+const redirectUri = location.href;
 
-  let uncollected = Number(localStorage.getItem("uncollected") || 0) + diff;
-  document.getElementById("count").textContent = uncollected;
+function login() {
+  const url =
+    "https://github.com/login/oauth/authorize" +
+    "?client_id=" + clientId +
+    "&redirect_uri=" + encodeURIComponent(redirectUri) +
+    "&scope=repo";
+  location.href = url;
+}
 
-  function collect() {
-    uncollected = Math.max(0, uncollected - 1);
-    localStorage.setItem("uncollected", uncollected);
-    localStorage.setItem("last", today);
-    document.getElementById("count").textContent = uncollected;
-    alert("回収完了");
-  }
+const params = new URLSearchParams(location.search);
+const code = params.get("code");
+
+if (code) {
+  document.getElementById("user").textContent =
+    "ログイン成功（次で保存処理を実装）";
+}
 </script>
+
 
 </body>
 </html>

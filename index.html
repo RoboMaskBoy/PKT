@@ -41,30 +41,53 @@
     const params = new URLSearchParams(location.search);
     const code = params.get("code");
     
-    async function save() {
-      if (!code) {
-        alert("先にログインしてください");
-        return;
-      }
-    
-      const content = "P: test\nK: test\nT: test";
-    
-      await fetch(
-        "https://api.github.com/repos/RoboMaskBoy/pkt/actions/workflows/save.yml/dispatches",
-        {
-          method: "POST",
-          headers: {
-            "Accept": "application/vnd.github+json"
-          },
-          body: JSON.stringify({
-            ref: "main",
-            inputs: { code, content }
-          })
-        }
-      );
-    
-      alert("保存リクエスト送信");
+async function save() {
+  const params = new URLSearchParams(location.search);
+  const code = params.get('code');
+  if (!code) { alert('先にログインしてください'); return; }
+
+  const p = document.querySelectorAll('textarea')[0].value.trim();
+  const k = document.querySelectorAll('textarea')[1].value.trim();
+  const t = document.querySelectorAll('textarea')[2].value.trim();
+  const content = `P: ${p}\nK: ${k}\nT: ${t}\n`;
+
+  // どちらのキーでも対応
+  const token = sessionStorage.getItem('gh_token') || sessionStorage.getItem('PKT_PAT_token');
+  if (!token) {
+    alert("テスト用トークンがありません。Consoleで sessionStorage.setItem('gh_token','ghp_xxx') を実行してください。");
+    return;
+  }
+
+  const endpoint = `https://api.github.com/repos/RoboMaskBoy/pkt/actions/workflows/save.yml/dispatches`;
+
+  try {
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Accept": "application/vnd.github+json",
+        "Authorization": "Bearer " + token,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        ref: "main",
+        inputs: { code, content }
+      })
+    });
+
+    if (res.status === 204) {
+      alert("保存リクエスト送信（Actions が起動します）");
+    } else {
+      const text = await res.text();
+      alert("dispatch 失敗: " + res.status + "\n" + text);
+      console.error("dispatch error", res.status, text);
     }
+  } catch (err) {
+    console.error(err);
+    alert("ネットワークエラーが発生しました。Console を確認してください。");
+  }
+}
+
+    
     </script>
   </body>
 </html>

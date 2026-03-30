@@ -1,71 +1,70 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <title>PKT</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body { font-family: sans-serif; padding: 16px; }
-    textarea { width: 100%; height: 60px; margin-bottom: 12px; }
-    button { width: 100%; padding: 12px; font-size: 16px; }
-    .count { font-weight: bold; margin-bottom: 16px; }
-  </style>
-</head>
-
-<button onclick="login()">GitHubでログイン</button>
-<button onclick="save()">保存</button>
-
-<div id="user"></div>
-
-<div class="count">未回収ログ：<span id="count">0</span></div>
-
-<textarea placeholder="P：今日やったこと"></textarea>
-<textarea placeholder="K：気づいたこと"></textarea>
-<textarea placeholder="T：次にやること"></textarea>
-
-<button onclick="collect()">回収する</button>
-
-<script>
-const clientId = "あなたのClient ID";
-const redirectUri = location.href;
-
-function login() {
-  location.href =
-    "https://github.com/login/oauth/authorize" +
-    "?client_id=" + clientId +
-    "&redirect_uri=" + encodeURIComponent(redirectUri) +
-    "&scope=repo";
-}
-
-const params = new URLSearchParams(location.search);
-const code = params.get("code");
-
-async function save() {
-  if (!code) {
-    alert("先にログインしてください");
-    return;
-  }
-
-  const content = "P: test\nK: test\nT: test";
-
-  await fetch(
-    "https://api.github.com/repos/あなたのID/pkt/actions/workflows/save.yml/dispatches",
-    {
-      method: "POST",
-      headers: {
-        "Accept": "application/vnd.github+json"
-      },
-      body: JSON.stringify({
-        ref: "main",
-        inputs: { code, content }
-      })
+  <head>
+    <meta charset="UTF-8">
+    <title>PKT</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      body { font-family: sans-serif; padding: 16px; }
+      textarea { width: 100%; height: 60px; margin-bottom: 12px; }
+      button { width: 100%; padding: 12px; font-size: 16px; }
+      .count { font-weight: bold; margin-bottom: 16px; }
+    </style>
+  </head>
+  
+  <body>
+    <button onclick="login()">GitHubでログイン</button>
+    <button onclick="save()">保存</button>
+    
+    <div id="user"></div>
+    
+    <div class="count">未回収ログ：<span id="count">0</span></div>
+    
+    <textarea placeholder="P：今日やったこと"></textarea>
+    <textarea placeholder="K：気づいたこと"></textarea>
+    <textarea placeholder="T：次にやること"></textarea>
+    
+    <button onclick="collect()">回収する</button>
+    
+    <script>
+    const clientId = "あなたのClient ID";
+    const redirectUri = location.href;
+    
+    function login() {
+      location.href =
+        "https://github.com/login/oauth/authorize" +
+        "?client_id=" + clientId +
+        "&redirect_uri=" + encodeURIComponent(redirectUri) +
+        "&scope=repo";
     }
-  );
-
-  alert("保存リクエスト送信");
-}
-</script>
-
-
-</body>
+    
+    const params = new URLSearchParams(location.search);
+    const code = params.get("code");
+    
+    async function save() {
+      if (!code) {
+        alert("先にログインしてください");
+        return;
+      }
+    
+      const content = "P: test\nK: test\nT: test";
+    
+      await fetch(
+        "https://api.github.com/repos/あなたのID/pkt/actions/workflows/save.yml/dispatches",
+        {
+          method: "POST",
+          headers: {
+            "Accept": "application/vnd.github+json"
+          },
+          body: JSON.stringify({
+            ref: "main",
+            inputs: { code, content }
+          })
+        }
+      );
+    
+      alert("保存リクエスト送信");
+    }
+    </script>
+  </body>
 </html>

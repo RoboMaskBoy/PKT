@@ -13,6 +13,8 @@
 </head>
 
 <button onclick="login()">GitHubでログイン</button>
+<button onclick="save()">保存</button>
+
 <div id="user"></div>
 
 <div class="count">未回収ログ：<span id="count">0</span></div>
@@ -24,24 +26,43 @@
 <button onclick="collect()">回収する</button>
 
 <script>
-const clientId = "Ov23lie1HLE64McsLhrS";
+const clientId = "あなたのClient ID";
 const redirectUri = location.href;
 
 function login() {
-  const url =
+  location.href =
     "https://github.com/login/oauth/authorize" +
     "?client_id=" + clientId +
     "&redirect_uri=" + encodeURIComponent(redirectUri) +
     "&scope=repo";
-  location.href = url;
 }
 
 const params = new URLSearchParams(location.search);
 const code = params.get("code");
 
-if (code) {
-  document.getElementById("user").textContent =
-    "ログイン成功（次で保存処理を実装）";
+async function save() {
+  if (!code) {
+    alert("先にログインしてください");
+    return;
+  }
+
+  const content = "P: test\nK: test\nT: test";
+
+  await fetch(
+    "https://api.github.com/repos/あなたのID/pkt/actions/workflows/save.yml/dispatches",
+    {
+      method: "POST",
+      headers: {
+        "Accept": "application/vnd.github+json"
+      },
+      body: JSON.stringify({
+        ref: "main",
+        inputs: { code, content }
+      })
+    }
+  );
+
+  alert("保存リクエスト送信");
 }
 </script>
 
